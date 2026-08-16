@@ -16,7 +16,7 @@ logger = setup_logger(__name__)
 
 
 class GeminiProvider(BaseLLMProvider):
-    """Google Gemini LLM provider"""
+    """Google Gemini LLM provider."""
 
     def __init__(
         self,
@@ -25,6 +25,10 @@ class GeminiProvider(BaseLLMProvider):
     ):
         """
         Initialize Gemini provider.
+
+        Args:
+            api_key: Google API key.
+            model: Model name to use.
         """
 
         api_key = api_key or os.getenv("GOOGLE_API_KEY")
@@ -40,7 +44,7 @@ class GeminiProvider(BaseLLMProvider):
             model=model or self.default_model
         )
 
-        # Create the new Gemini API client
+        # Create the new Gemini client.
         self.client = genai.Client(api_key=self.api_key)
 
         logger.info(
@@ -53,7 +57,6 @@ class GeminiProvider(BaseLLMProvider):
 
     @property
     def default_model(self) -> str:
-        # Current Gemini model
         return "gemini-3.6-flash"
 
     def generate(
@@ -72,18 +75,19 @@ class GeminiProvider(BaseLLMProvider):
                 f"Calling Gemini API with {len(messages)} messages"
             )
 
-            # Convert messages into one prompt.
+            # Convert the repository's message format
+            # into a single prompt.
             prompt = self._convert_messages_to_gemini_format(
                 messages
             )
 
-            # Generation settings
+            # Gemini 3.6 Flash no longer uses the old
+            # temperature parameter in this API path.
             config = types.GenerateContentConfig(
-                max_output_tokens=max_tokens,
-                temperature=temperature,
+                max_output_tokens=max_tokens
             )
 
-            # Generate response
+            # Generate the response.
             response = self.client.models.generate_content(
                 model=self.model,
                 contents=prompt,
@@ -93,9 +97,7 @@ class GeminiProvider(BaseLLMProvider):
             if response.text:
                 return response.text
 
-            raise Exception(
-                "No response received from Gemini"
-            )
+            raise Exception("No response received from Gemini")
 
         except Exception as e:
             logger.error(
@@ -116,8 +118,8 @@ class GeminiProvider(BaseLLMProvider):
         """
         Generate a response with tool calling support.
 
-        The original repository had simplified tool support,
-        so we preserve that behavior here.
+        The original repository has simplified tool support,
+        so we preserve that behavior for now.
         """
 
         try:
@@ -126,7 +128,7 @@ class GeminiProvider(BaseLLMProvider):
                 f"max_iterations={max_iterations}"
             )
 
-            # For now, use normal generation.
+            # Use normal generation for now.
             return self.generate(
                 messages,
                 max_tokens=max_tokens,
@@ -145,14 +147,12 @@ class GeminiProvider(BaseLLMProvider):
         messages: List[Dict[str, str]]
     ) -> str:
         """
-        Convert the repository's standard message format
-        into a single Gemini prompt.
+        Convert standard messages into a Gemini prompt.
         """
 
         prompt_parts = []
 
         for msg in messages:
-
             role = msg.get("role", "user")
             content = msg.get("content", "")
 
@@ -172,8 +172,17 @@ class GeminiProvider(BaseLLMProvider):
                 )
 
         return "\n\n".join(prompt_parts)
-        Returns:
-            List of tools in Gemini format
+
+    def _convert_tools_to_gemini_format(
+        self,
+        tools: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
-        # Simplified - would need proper implementation for production use
+        Convert tool definitions.
+
+        Tool calling is not implemented in the original
+        repository's Gemini provider, so this is retained
+        for interface compatibility.
+        """
+
         return tools

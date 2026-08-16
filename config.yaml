@@ -6,7 +6,7 @@ llm:
   # Gemini: Fast, multimodal, free tier available
   # Grok: Advanced reasoning, real-time data
   # OpenAI: Industry standard, latest models
-  provider: claude
+  provider: gemini
 
   # Optional: Specify a model (if not set, uses provider's default)
   # Claude models: claude-sonnet-4-5-20250929, claude-3-5-sonnet-20241022

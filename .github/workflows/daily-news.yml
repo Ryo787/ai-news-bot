@@ -29,7 +29,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
+- name: Check notification configuration
+  env:
+    GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+    GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+    EMAIL_TO: ${{ secrets.EMAIL_TO }}
+  run: |
+    echo "GMAIL_ADDRESS set: $([ -n "$GMAIL_ADDRESS" ] && echo YES || echo NO)"
+    echo "GMAIL_APP_PASSWORD set: $([ -n "$GMAIL_APP_PASSWORD" ] && echo YES || echo NO)"
+    echo "EMAIL_TO set: $([ -n "$EMAIL_TO" ] && echo YES || echo NO)"
       # Run the AI News Bot
       - name: Run AI News Bot
         env:
